@@ -31,3 +31,5 @@ def set_maker(name):
     train, validate, test = train_validate_test_split(df1)
 
     csv_creator(train, validate, test)
+
+set_maker('clean_data.csv')
