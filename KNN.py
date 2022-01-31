@@ -12,7 +12,7 @@ def knn(data, newpoint, k):
         distance = 0
         for i in range(len(point[:-1])):
             distance = distance + math.pow(point[:-1][i] - newpoint[i], 2)
-            distance = math.sqrt(distance)
+        distance = math.sqrt(distance)
         # Last index is the label so we don't include it in this calculation
         # Takes two points and calculates the distance between them using Euclidean Metric
         
