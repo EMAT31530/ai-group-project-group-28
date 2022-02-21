@@ -93,8 +93,8 @@ def k_means_oversample(allData, data, y_vals, newpoint, k, iterations, samplingS
             dist_from_centroids = [] # Includes indexs
             for index, centroid in enumerate(new_centroids):
                 distance = 0
-                for i in range(len(newpoint)):
-                    distance = distance + math.pow((newpoint[i] - centroid[i]), 2)
+                for j in range(len(newpoint)):
+                    distance = distance + math.pow((newpoint[j] - centroid[j]), 2)
                 distance = math.sqrt(distance)
                 dist_from_centroids.append((distance, index))
                 sorted_dist_from_centroids = sorted(dist_from_centroids)
@@ -108,7 +108,6 @@ def k_means_oversample(allData, data, y_vals, newpoint, k, iterations, samplingS
                     index = net_yearly_income.index(point[0][0]) # change this each time depending where the net yearly income feature is in the xvals
                     centroid1_labels.append(y_vals[index])
                 if point[1] == 1:
-
                     index = net_yearly_income.index(point[0][0])
                     centroid2_labels.append(y_vals[index])
             centroid1_labels = np.array(centroid1_labels).astype(int)
@@ -117,7 +116,7 @@ def k_means_oversample(allData, data, y_vals, newpoint, k, iterations, samplingS
             print('Second centroid has ',np.count_nonzero(centroid2_labels == 1.0) ,'1s and ', np.count_nonzero(centroid2_labels == 0.0),'zeros')
             #print(centroid1_labels)
             #print(centroid2_labels)
-            return ('Centroids: ', new_centroids ,'Point is assigned to centroid ', assigned_centroid.tolist())
+            return ('Centroids: ', new_centroids ,'Point is assigned to centroid ', assigned_centroid.tolist(), 'Stopped at iteration: ', i)
         else:
             assigned_points = cluster_assign(data,new_centroids) # We need all the points within the arrays
             old_centroids = new_centroids.copy()
@@ -141,6 +140,8 @@ y_vals = np.array(df.iloc[:,-1])
 # This suggests the first centoid contains points that mostly were defaulted (0) and the second centroid mostly contains points that were not defaulted
 
 #print(k_means_oversample(allData.tolist(), x_vals.tolist(), y_vals, [33657, 267397], 2, 50, 'minority'))
+
+# Note we require very few iterations for convergence (1-5 range)
 
 # Now we calculate the F1 score
 # We need an array for the true yvals and an array for the predicted yvals to calculater this
@@ -187,7 +188,7 @@ ax.xaxis.set_ticklabels(['False','True'])
 ax.yaxis.set_ticklabels(['False','True'])
 
 ## Display the visualization of the Confusion Matrix.
-plt.show()
+#plt.show()
 
 # Now we add the prev default in 6 months feature
 

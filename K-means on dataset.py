@@ -131,4 +131,5 @@ print(k_means(x_vals.tolist(), [33657, 267397], 2, 50))
 # First centroid has  203 1s and  37228 zeros
 # Second centroid has  0 1s and  8097 zeros
 
+
 # Now we calculate the F1 score
