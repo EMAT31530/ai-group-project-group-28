@@ -1,6 +1,14 @@
-import math
+from sklearn.metrics import f1_score
+import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import math
 from random import randint
+import random
+
+
+df = pd.read_csv('ActualActualData/training_set.csv') # 37 features
+
 
 def cluster_assign(data, centroids):
     '''For each point calculate the distance it is from all the centroids
@@ -47,10 +55,11 @@ def same_centroids(new, old):
             return False
         else:
             return True
-        
+
 def k_means(data, newpoint, k, iterations):
-    '''Our original K-means which we use as a base 
-       structure for the future adapted K-means'''
+    '''A slightly adapted version of K-means which prints out
+       how many 1s and 0s each centroid has. We then decide
+       which cluster we think should be 1 and which should be 0.'''
     centroids = []
     # Ranomly pick k centroids to start with
     while len(centroids) < k:
@@ -59,19 +68,15 @@ def k_means(data, newpoint, k, iterations):
             centroids.append(rand_point)
         else:
             continue
-    #print('original ',centroids)
     # We assign our points to clusters
     assigned_points = cluster_assign(data,centroids)
-    #print(assigned_points)
     old_centroids = centroids
     new_centroids = []
-    # We keep assigning new centroids until we either: 
-    # reach the max iterations or converge.
-    for i in range(iterations):
+    # We create a while loop which keeps the program running until
+    # all points don't change their centroid
+    for p in range(iterations):
         new_centroids = avg_of_points(assigned_points,k) # Our new centroids are the average of the points assigned to that cluster
         new_centroids = [new_centroids[i][0] for i in range(len(new_centroids))]
-        #print('new', new_centroids)
-        #print('old', old_centroids)
         if np.allclose(new_centroids, old_centroids): # If we have converged then we classify the new point
             dist_from_centroids = [] # Includes indexs
             for index, centroid in enumerate(new_centroids):
@@ -83,17 +88,38 @@ def k_means(data, newpoint, k, iterations):
                 sorted_dist_from_centroids = sorted(dist_from_centroids)
                 closest_centroid_index = sorted_dist_from_centroids[0][1]
                 assigned_centroid = new_centroids[closest_centroid_index]
+
+            centroid1_labels = []
+            centroid2_labels = []
+            net_yearly_income = x_train[:,2].tolist() # We use the net yearly income to identify the point, then find its true label
+            print(assigned_points)
+            for point in assigned_points:
+                if point[1] == 0:
+                    index = net_yearly_income.index(point[0][2])
+                    centroid1_labels.append(x_train[index,-1])
+                if point[1] == 1:
+                    index = net_yearly_income.index(point[0][2])
+                    centroid2_labels.append(x_train[index,-1])
+            centroid1_labels = np.array(centroid1_labels).astype(int) # We convert the floats to integers so we can count how many 1s and 0s we have
+            centroid2_labels = np.array(centroid2_labels).astype(int)
+            print(centroid1_labels)
+            print(centroid2_labels)
+            print('First centroid has ',np.count_nonzero(centroid1_labels == 1.0) ,'1s and ', np.count_nonzero(centroid1_labels == 0.0),'zeros')
+            print('Second centroid has ',np.count_nonzero(centroid2_labels == 1.0) ,'1s and ', np.count_nonzero(centroid2_labels == 0.0),'zeros')
+            print('Converged at iteration: ', p)
             return ('Centroids: ', new_centroids ,'Point is assigned to centroid ', assigned_centroid.tolist())
         else:
             assigned_points = cluster_assign(data,new_centroids) # We re-estimate our k cluster centroids, by assuming the 
                                                                  # points have been assigned to the correct centroid.
             old_centroids = new_centroids.copy()
 
-        
-        
-        #print(assigned_points)
+y_train_true = np.array(df.iloc[:,-1]) # y credit card default
+x_train = np.array(df.iloc[:,:-1]) # select all rows and all columns from the start up to the last
 
-# Some test data to see how the function performs
-Data = [[25,79],[34,51],[22,53],[27,78],[33,59],[33,74],[31,73],[22,57],[35,69],[34,75],[67,51],[54,32],[57,40],[43,47],[50,53],[57,36],[59,35],[52,58],[65,59],[47,50],[49,25],[48,20],[35,14],[33,12],[44,20],[45,5],[38,29],[43,27],[51,8],[46,7]]
+print(k_means(x_train.tolist(), [33657, 267397], 2, 10))
 
-#print(k_means(Data, [5,6], 4, 50))
+#print(np.count_nonzero(y_vals == 1)) # 3697 labels of 1
+#print(np.count_nonzero(y_vals == 0)) # 41831 labels of 0
+
+# First centroid has  203 1s and  37228 zeros
+# Second centroid has  0 1s and  8097 zeros
