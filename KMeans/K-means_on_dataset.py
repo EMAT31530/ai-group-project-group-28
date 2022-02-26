@@ -67,7 +67,7 @@ def k_means(data, newpoint, k, iterations, y_true):
     '''A slightly adapted version of K-means which prints out
        how many 1s and 0s each centroid has. We then decide
        which cluster we think should be 1 and which should be 0.
-       The function returns the predicted y labels at the end'''
+       The function returns the predicted cluster indexes at the end'''
     centroids = []
     # Ranomly pick k centroids to start with
     while len(centroids) < k:
@@ -97,7 +97,7 @@ def k_means(data, newpoint, k, iterations, y_true):
                 closest_centroid_index = sorted_dist_from_centroids[0][1]
                 assigned_centroid = new_centroids[closest_centroid_index]
 
-            predicted_labels = [point[1] for point in assigned_points]
+            predicted_cluster_index = [point[1] for point in assigned_points]
 
             centroid1_labels = [] # True labels of centroid 1 (index 0)
             centroid2_labels = [] # True labels of centroid 2 (index 1)
@@ -118,7 +118,7 @@ def k_means(data, newpoint, k, iterations, y_true):
             
             print('Converged at iteration: ', p)
             print('Centroids: ', new_centroids ,'Point is assigned to centroid ', assigned_centroid.tolist())
-            return(predicted_labels[:10])
+            return(predicted_cluster_index[:10])
         else:
             assigned_points = cluster_assign(data,new_centroids) # We re-estimate our k cluster centroids, by assuming the 
                                                                  # points have been assigned to the correct centroid.
