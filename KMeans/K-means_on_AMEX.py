@@ -13,17 +13,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 def cluster_assign(data, centroids):
-    # For each point calculate the distance it is from all the centroids
-    # and assign the point to the centroid it is closest to
-    # We make the arrays for the centroids which starts with each 
-    # centroid having no points assigned to it
+    '''For each point calculate the distance it is from all the centroids
+       and assign the point to the centroid it is closest to.
+       We make the arrays for the centroids which starts with each 
+       centroid having no points assigned to it'''
     assigned_points = []
-    for point in data:
+    for point in data: # Loop over each point in the data
         dist_from_centroids = [] # Includes indexs
         for index, centroid in enumerate(centroids):
             #print('pc', point, centroid)
             distance = 0
-            for i in range(len(point)):
+            for i in range(len(point)): # Calculate the Euclidean Distance for each of the centroids and that point
                 distance = distance + math.pow((point[i] - centroid[i]), 2)
             distance = math.sqrt(distance)
             dist_from_centroids.append((distance, index))
@@ -37,8 +37,8 @@ def cluster_assign(data, centroids):
     return assigned_points
 
 def avg_of_points(points,k):
-    # We compute the average of the points which will be our new centroid(s)
-    # We start by creating an array which will hold all of our new centroids
+    '''We compute the average of the points, which will be our new centroid(s).
+       We start by creating an array which will hold all of our new centroids'''
     new_centroids = []
     for j in range(k): # Loops though each centroid
         points_in_centroid_j = []
@@ -49,14 +49,11 @@ def avg_of_points(points,k):
         #print('j', points_in_centroid_j)
         new_centroid_j = np.mean([points_in_centroid_j], axis = 1)  # Find the average of those points
         new_centroids.append(new_centroid_j) # Now we add our new centroid for index j 
-        #new_centroid_j = new_centroid_j
-        #print(new_centroids) # Why is there no commas? Something to do with np.mean() ?
-    #print(list(new_centroids))
     return(new_centroids)
 
 def same_centroids(new, old):
-    # I couldn't work our why i couldn't compare the new and old centroids,
-    # So I made a function to comoare them instead
+    '''Compares the new and old centroids. 
+       Returns True if they are identical and False otherwise'''
     for i in range(len(new)):
         if new[i] != old[i]:
             return False
@@ -100,23 +97,28 @@ def k_means_oversample(allData, data, y_vals, newpoint, k, iterations, samplingS
                 sorted_dist_from_centroids = sorted(dist_from_centroids)
                 closest_centroid_index = sorted_dist_from_centroids[0][1]
                 assigned_centroid = new_centroids[closest_centroid_index]
-            centroid1_labels = []
-            centroid2_labels = []
-            net_yearly_income = [point[2] for point in allData]
+            predicted_cluster_index = [point[1] for point in assigned_points]
+
+            centroid1_labels = [] # True labels of centroid 1 (index 0)
+            centroid2_labels = [] # True labels of centroid 2 (index 1)
+            count = 0
             for point in assigned_points:
                 if point[1] == 0:
-                    index = net_yearly_income.index(point[0][0]) # change this each time depending where the net yearly income feature is in the xvals
-                    centroid1_labels.append(y_vals[index])
+                    centroid1_labels.append(y_true[count]) 
+                    count+=1
                 if point[1] == 1:
-                    index = net_yearly_income.index(point[0][0])
-                    centroid2_labels.append(y_vals[index])
-            centroid1_labels = np.array(centroid1_labels).astype(int)
+                    centroid2_labels.append(y_true[count])
+                    count+=1
+            centroid1_labels = np.array(centroid1_labels).astype(int) # We convert the floats to integers so we can count how many 1s and 0s we have
             centroid2_labels = np.array(centroid2_labels).astype(int)
-            print('First centroid has ',np.count_nonzero(centroid1_labels == 1.0) ,'1s and ', np.count_nonzero(centroid1_labels == 0.0),'zeros')
-            print('Second centroid has ',np.count_nonzero(centroid2_labels == 1.0) ,'1s and ', np.count_nonzero(centroid2_labels == 0.0),'zeros')
             #print(centroid1_labels)
             #print(centroid2_labels)
-            return ('Centroids: ', new_centroids ,'Point is assigned to centroid ', assigned_centroid.tolist(), 'Stopped at iteration: ', i)
+            print('First centroid has ',np.count_nonzero(centroid1_labels == 1.0) ,'1s and ', np.count_nonzero(centroid1_labels == 0.0),'zeros')
+            print('Second centroid has ',np.count_nonzero(centroid2_labels == 1.0) ,'1s and ', np.count_nonzero(centroid2_labels == 0.0),'zeros')
+            
+            print('Converged at iteration: ', p)
+            print('Centroids: ', new_centroids ,'Point is assigned to centroid ', assigned_centroid.tolist())
+            return(predicted_cluster_index[:10])
         else:
             assigned_points = cluster_assign(data,new_centroids) # We need all the points within the arrays
             old_centroids = new_centroids.copy()
@@ -147,8 +149,8 @@ y_vals = np.array(df.iloc[:,-1])
 # We need an array for the true yvals and an array for the predicted yvals to calculater this
 # So, we create a function which takes our centroids that we got from k_means and predicts which centroid each point in our validation set would be assigned to
 
-def k_means_oversample_val(centroids,x_val): # centroids must be [centroid2(predict not default), centroid1(predict default)]
-    ' Returns our predicted y_vals'
+def k_means_val(centroids,x_val): # centroids must be [centroid2(predict not default), centroid1(predict default)]
+    '''Returns our predicted y_vals'''
     y_pred = [] # our predicted y values for the validation set will be in the same order of the original xvals so we can compare our ypred and ytrue later
     for point in x_val:
         dist_from_centroids = [] # Includes indexs
@@ -168,7 +170,7 @@ centroids = [[0.00121867, 0.61232727, 0.        ], [0.00157757, 0.16860725, 0.49
 y_true = np.array(val.iloc[:,-1]) # Validation set
 x_val = np.array(val.iloc[:,[2,9,10]]) # xvals from the validation set
 
-y_pred = k_means_oversample_val(centroids, x_val)
+y_pred = k_means_val(centroids, x_val)
 
 #print(f1_score(y_true, y_pred, average = 'binary')) # 0.8650306748466258
 

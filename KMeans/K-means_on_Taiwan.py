@@ -1,6 +1,10 @@
 # This file contains the training process for how we trained the different training sets using kmeans.
 # We want to use this data to determine which cluster we think should be default and which should be no default.
 
+# Check using the actual kmeans module that the algorithm produces similar results
+# ADD INFO ABOUT THE Y_TRUE PARAMETER IN LATEX!
+
+
 from sklearn.metrics import f1_score
 import pandas as pd
 import numpy as np
@@ -125,9 +129,8 @@ def k_means(data, newpoint, k, iterations, y_true):
             old_centroids = new_centroids.copy()
 
 
-# The original training set has a shape of (21000, 24)
 
-# ADD INFO ABOUT THE Y_TRUE PARAMETER IN LATEX!
+# The original training set has a shape of (21000, 24)
 
 y1_true = np.array(df1.iloc[:,-1]) # y credit card default
 x1_train = np.array(df1.iloc[:,:-1]) # select all rows and all columns from the start up to the last

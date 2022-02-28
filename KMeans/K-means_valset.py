@@ -11,7 +11,7 @@ from imblearn.over_sampling import RandomOverSampler
 import random
   
         
-def k_means_oversample_val(centroids,x_val): # centroids must be [centroid2(predict not default), centroid1(predict default)]
+def k_means_val(centroids,x_val): # centroids must be [centroid2(predict not default), centroid1(predict default)]
     y_pred = [] # our predicted y values for the validation set will be in the same order of the original xvals so we can compare our ypred and ytrue later
     for point in x_val:
         dist_from_centroids = [] # Includes indexs
