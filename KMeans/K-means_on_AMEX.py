@@ -61,10 +61,9 @@ def same_centroids(new, old):
             return True
         
 
-def k_means_oversample(allData, data, y_vals, newpoint, k, iterations, samplingStrategy):
+def k_means_oversample(data, y_vals, newpoint, k, iterations, samplingStrategy):
     '''Oversamples our data (from 45528 samples to 62746 samples if we use a
     sampling strategy of 0.5) and then applies kmeans. '''
-    random.seed(0)
     oversample = RandomOverSampler(sampling_strategy = samplingStrategy) # e.g sampling strategy 0.5 would mean that if the majority
                                                                          # class had 1,000 examples and the minority class had 100, 
                                                                          # the transformed dataset would have 500 examples of the minority class.
@@ -83,7 +82,7 @@ def k_means_oversample(allData, data, y_vals, newpoint, k, iterations, samplingS
     new_centroids = []
     # We create a while loop which keeps the program running until
     # all points don't change their centroid
-    for i in range(iterations):
+    for p in range(iterations):
         new_centroids = avg_of_points(assigned_points,k)
         new_centroids = [new_centroids[i][0] for i in range(len(new_centroids))]
         if np.allclose(new_centroids, old_centroids):
@@ -104,10 +103,10 @@ def k_means_oversample(allData, data, y_vals, newpoint, k, iterations, samplingS
             count = 0
             for point in assigned_points:
                 if point[1] == 0:
-                    centroid1_labels.append(y_true[count]) 
+                    centroid1_labels.append(y_vals[count]) 
                     count+=1
                 if point[1] == 1:
-                    centroid2_labels.append(y_true[count])
+                    centroid2_labels.append(y_vals[count])
                     count+=1
             centroid1_labels = np.array(centroid1_labels).astype(int) # We convert the floats to integers so we can count how many 1s and 0s we have
             centroid2_labels = np.array(centroid2_labels).astype(int)
@@ -123,8 +122,8 @@ def k_means_oversample(allData, data, y_vals, newpoint, k, iterations, samplingS
             assigned_points = cluster_assign(data,new_centroids) # We need all the points within the arrays
             old_centroids = new_centroids.copy()
 
-df = pd.read_csv('CleaningTheData/ActualData/training_set.csv')
-val = pd.read_csv('CleaningTheData/ActualData/validation_set.csv')
+df = pd.read_csv('Amex_Dataset/training_set.csv')
+val = pd.read_csv('Amex_Dataset/validation_set.csv')
 allData = np.array(df.iloc[:,:36])
 
 # For all features: x_vals = np.array(df.iloc[:,:36])
@@ -135,15 +134,24 @@ allData = np.array(df.iloc[:,:36])
 
 # For features 9,10 (credit score and previous defaults)
 # For now we also have to incude net yearly income to count the 0s and 1s for each cluster- I should find a better way of doing this
-x_vals = np.array(df.iloc[:,[2,9,10]])
+#x_vals = np.array(df.iloc[:,[2,9,10]])
 y_vals = np.array(df.iloc[:,-1])
 # First centroid has  22258 1s and  11 zeros [0.00157757, 0.16860725, 0.49369078]
 # Second centroid has  7014 1s and  29279 zeros [0.00121867, 0.61232727, 0.        ]
 # This suggests the first centoid contains points that mostly were defaulted (1) and the second centroid mostly contains points that were not defaulted (0)
 
-#print(k_means_oversample(allData.tolist(), x_vals.tolist(), y_vals, [33657, 267397], 2, 50, 'minority'))
+#print(k_means_oversample(x_vals.tolist(), y_vals, [33657, 267397], 2, 50, 'minority'))
 
-# Note we require very few iterations for convergence (1-5 range)
+#Now lets try just the two features 9,10:
+x1_vals = np.array(df.iloc[:,[9,10]])
+print(k_means_oversample(x1_vals.tolist(), y_vals, [33657, 267397], 2, 50, 'minority'))
+#First centroid has  22222 1s and  0 zeros
+#Second centroid has  7059 1s and  29281 zeros
+#Converged at iteration:  2
+#Centroids:  [array([0.00162923, 0.16877273, 0.49057241]), array([0.00122236, 0.61208158, 0.        ])] Point is assigned to centroid  [0.0012223578136249529, 0.6120815779700092, 0.0]
+# This suggests the first centoid contains points that mostly were defaulted (1) and the second centroid mostly contains points that were not defaulted (0)
+
+# Note we require very few iterations for convergence (1-10 range)
 
 # Now we calculate the F1 score
 # We need an array for the true yvals and an array for the predicted yvals to calculater this
@@ -167,8 +175,9 @@ def k_means_val(centroids,x_val): # centroids must be [centroid2(predict not def
     return(y_pred)
 
 centroids = [[0.00121867, 0.61232727, 0.        ], [0.00157757, 0.16860725, 0.49369078]]
-y_true = np.array(val.iloc[:,-1]) # Validation set
+
 x_val = np.array(val.iloc[:,[2,9,10]]) # xvals from the validation set
+y_true = np.array(val.iloc[:,-1]) # Validation set labels
 
 y_pred = k_means_val(centroids, x_val)
 
