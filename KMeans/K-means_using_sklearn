@@ -7,44 +7,63 @@ from random import randint
 import random
 from sklearn.metrics import f1_score
 
-df5 = pd.read_csv('ActualActualData/training_cnn_autoencoded.csv')
+df5 = pd.read_csv('ActualActualData/training_cnn_autoencoded_16.csv')
 
-km = KMeans(
-    n_clusters=3, init='random',
-    n_init=10, max_iter=300, 
-    tol=1e-04, random_state=0
-)
-y_km = km.fit_predict(df5)
-print(y_km)
+kmeans = KMeans(7,random_state = 0).fit(df5.iloc[:,:-1])
+centroid_indexes = kmeans.labels_ # Predicted centroid indexes
 
-plt.scatter(
-    df5[y_km == 0, 0], df5[y_km == 0, 1],
-    s=50, c='lightgreen',
-    marker='s', edgecolor='black',
-    label='cluster 1'
-)
+y_true = np.array(df5.iloc[:,-1]) # y credit card default
 
-plt.scatter(
-    df5[y_km == 1, 0], df5[y_km == 1, 1],
-    s=50, c='orange',
-    marker='o', edgecolor='black',
-    label='cluster 2'
-)
+no_rows, no_columns = df5.shape
 
-plt.scatter(
-    df5[y_km == 2, 0], df5[y_km == 2, 1],
-    s=50, c='lightblue',
-    marker='v', edgecolor='black',
-    label='cluster 3'
-)
+centroid0_labels = [] # True labels of centroid (index 0)
+centroid1_labels = [] # True labels of centroid (index 1)
+centroid2_labels = [] # True labels of centroid (index 2)
+centroid3_labels = [] # True labels of centroid (index 3)
+centroid4_labels = [] # True labels of centroid (index 4)
+centroid5_labels = [] # True labels of centroid (index 5)
+centroid6_labels = [] # True labels of centroid (index 6)
 
-# plot the centroids
-plt.scatter(
-    km.cluster_centers_[:, 0], km.cluster_centers_[:, 1],
-    s=250, marker='*',
-    c='red', edgecolor='black',
-    label='centroids'
-)
-plt.legend(scatterpoints=1)
-plt.grid()
-plt.show()
+
+for i in range(no_rows):
+    if centroid_indexes[i] == 0:
+        centroid0_labels.append(y_true[i]) 
+    if centroid_indexes[i] == 1:
+        centroid1_labels.append(y_true[i])
+    if centroid_indexes[i] == 2:
+        centroid2_labels.append(y_true[i]) 
+    if centroid_indexes[i] == 3:
+        centroid3_labels.append(y_true[i]) 
+    if centroid_indexes[i] == 4:
+        centroid4_labels.append(y_true[i]) 
+    if centroid_indexes[i] == 5:
+        centroid5_labels.append(y_true[i]) 
+    if centroid_indexes[i] == 6:
+        centroid6_labels.append(y_true[i]) 
+
+centroid0_labels = np.array(centroid0_labels).astype(int) # We convert the floats to integers so we can count how many 1s and 0s we have
+centroid1_labels = np.array(centroid1_labels).astype(int)
+centroid2_labels = np.array(centroid2_labels).astype(int)
+centroid3_labels = np.array(centroid3_labels).astype(int)
+centroid4_labels = np.array(centroid4_labels).astype(int)
+centroid5_labels = np.array(centroid5_labels).astype(int)
+centroid6_labels = np.array(centroid6_labels).astype(int)
+
+print('First centroid has ',np.count_nonzero(centroid0_labels == 1.0) ,'1s and ', np.count_nonzero(centroid0_labels == 0.0),'zeros')
+print('Second centroid has ',np.count_nonzero(centroid1_labels == 1.0) ,'1s and ', np.count_nonzero(centroid1_labels == 0.0),'zeros')
+print('3rd centroid has ',np.count_nonzero(centroid2_labels == 1.0) ,'1s and ', np.count_nonzero(centroid2_labels == 0.0),'zeros')
+print('4th centroid has ',np.count_nonzero(centroid3_labels == 1.0) ,'1s and ', np.count_nonzero(centroid3_labels == 0.0),'zeros')
+print('5th centroid has ',np.count_nonzero(centroid4_labels == 1.0) ,'1s and ', np.count_nonzero(centroid4_labels == 0.0),'zeros')
+print('6th centroid has ',np.count_nonzero(centroid5_labels == 1.0) ,'1s and ', np.count_nonzero(centroid5_labels == 0.0),'zeros')
+print('7th centroid has ',np.count_nonzero(centroid6_labels == 1.0) ,'1s and ', np.count_nonzero(centroid6_labels == 0.0),'zeros')
+
+
+
+# We can see that:
+
+
+# Lets see how this does on the validation set
+val_set = pd.read_csv('ActualActualData/validation_set.csv')
+
+
+
