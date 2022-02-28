@@ -5,7 +5,7 @@
 # ADD INFO ABOUT THE Y_TRUE PARAMETER IN LATEX!
 
 
-from sklearn.metrics import f1_score
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,6 +19,7 @@ df1 = pd.read_csv('ActualActualData/training_set.csv')
 df2 = pd.read_csv('ActualActualData/training_SMOTE.csv') 
 df3 = pd.read_csv('ActualActualData/training_RUS.csv') 
 df4 = pd.read_csv('ActualActualData/training_ROS.csv') 
+df5 = pd.read_csv('ActualActualData/training_cnn_autoencoded_16.csv')
 
 
 def cluster_assign(data, centroids):
@@ -88,8 +89,10 @@ def k_means(data, newpoint, k, iterations, y_true):
     # all points don't change their centroid
     for p in range(iterations):
         new_centroids = avg_of_points(assigned_points,k) # Our new centroids are the average of the points assigned to that cluster
+        #print(new_centroids)
         new_centroids = [new_centroids[i][0] for i in range(len(new_centroids))]
         if np.allclose(new_centroids, old_centroids): # If we have converged then we classify the new point
+            print('Cnverged')
             dist_from_centroids = [] # Includes indexs
             for index, centroid in enumerate(new_centroids):
                 distance = 0
@@ -100,11 +103,18 @@ def k_means(data, newpoint, k, iterations, y_true):
                 sorted_dist_from_centroids = sorted(dist_from_centroids)
                 closest_centroid_index = sorted_dist_from_centroids[0][1]
                 assigned_centroid = new_centroids[closest_centroid_index]
-
             predicted_cluster_index = [point[1] for point in assigned_points]
+            print(assigned_points[:10])
 
             centroid1_labels = [] # True labels of centroid 1 (index 0)
             centroid2_labels = [] # True labels of centroid 2 (index 1)
+            centroid3_labels = [] # True labels of centroid 3 (index 2)
+            centroid4_labels = [] # True labels of centroid 4 (index 3)
+            centroid5_labels = [] # True labels of centroid 5 (index 4)
+            centroid6_labels = [] # True labels of centroid 6 (index 5)
+            centroid7_labels = [] # True labels of centroid 7 (index 6)
+            centroid8_labels = [] # True labels of centroid 8 (index 7)
+            centroid9_labels = [] # True labels of centroid 8 (index 7)
             count = 0
             for point in assigned_points:
                 if point[1] == 0:
@@ -113,28 +123,60 @@ def k_means(data, newpoint, k, iterations, y_true):
                 if point[1] == 1:
                     centroid2_labels.append(y_true[count])
                     count+=1
+                if point[1] == 2:
+                    centroid3_labels.append(y_true[count]) 
+                    count+=1
+                if point[1] == 3:
+                    centroid4_labels.append(y_true[count]) 
+                    count+=1
+                if point[1] == 4:
+                    centroid5_labels.append(y_true[count]) 
+                    count+=1
+                if point[1] == 5:
+                    centroid6_labels.append(y_true[count]) 
+                    count+=1
+                if point[1] == 6:
+                    centroid7_labels.append(y_true[count]) 
+                    count+=1
+                if point[1] == 7:
+                    centroid8_labels.append(y_true[count]) 
+                    count+=1
             centroid1_labels = np.array(centroid1_labels).astype(int) # We convert the floats to integers so we can count how many 1s and 0s we have
             centroid2_labels = np.array(centroid2_labels).astype(int)
+            centroid3_labels = np.array(centroid3_labels).astype(int)
+            centroid4_labels = np.array(centroid4_labels).astype(int)
+            centroid5_labels = np.array(centroid5_labels).astype(int)
+            centroid6_labels = np.array(centroid6_labels).astype(int)
+            centroid7_labels = np.array(centroid7_labels).astype(int)
+            centroid8_labels = np.array(centroid8_labels).astype(int)
+            centroid9_labels = np.array(centroid9_labels).astype(int)
             #print(centroid1_labels)
             #print(centroid2_labels)
             print('First centroid has ',np.count_nonzero(centroid1_labels == 1.0) ,'1s and ', np.count_nonzero(centroid1_labels == 0.0),'zeros')
             print('Second centroid has ',np.count_nonzero(centroid2_labels == 1.0) ,'1s and ', np.count_nonzero(centroid2_labels == 0.0),'zeros')
-            
+            print('3rd centroid has ',np.count_nonzero(centroid3_labels == 1.0) ,'1s and ', np.count_nonzero(centroid3_labels == 0.0),'zeros')
+            print('4rd centroid has ',np.count_nonzero(centroid4_labels == 1.0) ,'1s and ', np.count_nonzero(centroid4_labels == 0.0),'zeros')
+            print('5th centroid has ',np.count_nonzero(centroid5_labels == 1.0) ,'1s and ', np.count_nonzero(centroid5_labels == 0.0),'zeros')
+            print('6th centroid has ',np.count_nonzero(centroid6_labels == 1.0) ,'1s and ', np.count_nonzero(centroid6_labels == 0.0),'zeros')
+            print('7th centroid has ',np.count_nonzero(centroid7_labels == 1.0) ,'1s and ', np.count_nonzero(centroid7_labels == 0.0),'zeros')
+            print('8th centroid has ',np.count_nonzero(centroid8_labels == 1.0) ,'1s and ', np.count_nonzero(centroid8_labels == 0.0),'zeros')
+            print('9th centroid has ',np.count_nonzero(centroid9_labels == 1.0) ,'1s and ', np.count_nonzero(centroid9_labels == 0.0),'zeros')
             print('Converged at iteration: ', p)
             print('Centroids: ', new_centroids ,'Point is assigned to centroid ', assigned_centroid.tolist())
-            return(predicted_cluster_index[:10])
+            return(predicted_cluster_index[:10]) # If 'None' is returned then it hasn't converged and you need to increase the number of iterations
         else:
             assigned_points = cluster_assign(data,new_centroids) # We re-estimate our k cluster centroids, by assuming the 
                                                                  # points have been assigned to the correct centroid.
+            #print(assigned_points[:10])
             old_centroids = new_centroids.copy()
 
 
 
 # The original training set has a shape of (21000, 24)
 
-y1_true = np.array(df1.iloc[:,-1]) # y credit card default
-x1_train = np.array(df1.iloc[:,:-1]) # select all rows and all columns from the start up to the last
-y1_pred = k_means(x1_train.tolist(), [33657, 267397], 2, 10, y1_true)
+#y1_true = np.array(df1.iloc[:,-1]) # y credit card default
+#x1_train = np.array(df1.iloc[:,:-1]) # select all rows and all columns from the start up to the last
+#y1_pred = k_means(x1_train.tolist(), [33657, 267397], 2, 10, y1_true)
 #print(y1_pred))
 
 '''First centroid has  2239 1s and  7376 zeros
@@ -157,9 +199,9 @@ Centroids:  [array([1.75033959e-01, 3.74726989e-01, 3.23730283e-01, 1.04004160e-
 
 # The SMOTE training set has a shape of (32710, 24)
 
-y2_true = np.array(df2.iloc[:,-1]) # y credit card default
-x2_train = np.array(df2.iloc[:,:-1]) # select all rows and all columns from the start up to the last
-y2_pred = k_means(x2_train.tolist(), [33657, 267397], 2, 10, y2_true)
+#y2_true = np.array(df2.iloc[:,-1]) # y credit card default
+#x2_train = np.array(df2.iloc[:,:-1]) # select all rows and all columns from the start up to the last
+#y2_pred = k_means(x2_train.tolist(), [33657, 267397], 2, 10, y2_true)
 #print(y2_pred)
 
 '''First centroid has  7022 1s and  6250 zeros
@@ -175,11 +217,12 @@ Centroids:  [array([0.14004153, 1.        , 0.28322842, 0.27877087, 0.26903657,
        0.11873395, 0.28958428, 0.00536502, 0.00285779, 0.00477461,
        0.00642918, 0.00958548, 0.00834993])] Point is assigned to centroid  [0.14004153462686422, 1.0, 0.2832284173992454, 0.2787708712460896, 0.2690365681235959, 0.23018109734656766, 0.21730199644866652, 0.211978827763337, 0.2038361152489261, 0.1973617047218983, 0.19366654879525655, 0.19285494675821746, 0.11421901302105404, 0.11267359168417108, 0.20169637262252776, 0.12150937589609356, 0.29156635990036134, 0.005346249930783723, 0.0029075161882290155, 0.005131459218150766, 0.006730005862237024, 0.009509063231351396, 0.008457001855400487]'''
 
+
 # The RUS training set has a shape of (9290, 24)
 
-y3_true = np.array(df3.iloc[:,-1]) # y credit card default
-x3_train = np.array(df3.iloc[:,:-1]) # select all rows and all columns from the start up to the last
-y3_pred = k_means(x3_train.tolist(), [33657, 267397], 2, 10, y3_true)
+#y3_true = np.array(df3.iloc[:,-1]) # y credit card default
+#x3_train = np.array(df3.iloc[:,:-1]) # select all rows and all columns from the start up to the last
+#y3_pred = k_means(x3_train.tolist(), [33657, 267397], 2, 10, y3_true)
 #print(y3_pred)
 
 '''First centroid has  1972 1s and  1777 zeros
@@ -197,9 +240,9 @@ Centroids:  [array([0.14334866, 1.        , 0.28425358, 0.2766071 , 0.27202196,
 
 # The ROS training set has a shape of (32710, 24)
 
-y4_true = np.array(df4.iloc[:,-1]) # y credit card default
-x4_train = np.array(df4.iloc[:,:-1]) # select all rows and all columns from the start up to the last
-y4_pred = k_means(x4_train.tolist(), [33657, 267397], 2, 10, y4_true)
+#y4_true = np.array(df4.iloc[:,-1]) # y credit card default
+#x4_train = np.array(df4.iloc[:,:-1]) # select all rows and all columns from the start up to the last
+#y4_pred = k_means(x4_train.tolist(), [33657, 267397], 2, 10, y4_true)
 #print(y4_pred)
 
 '''First centroid has  9380 1s and  10105 zeros
@@ -216,6 +259,24 @@ Centroids:  [array([0.14885504, 0.        , 0.28675049, 0.2678214 , 0.23623565,
        0.00715441, 0.00988582, 0.00885979])] Point is assigned to centroid  [0.14232120830228728, 1.0, 0.2835034656584893, 0.27810964083175804, 0.2710592529822028, 0.23062381852552324, 0.2182608695652176, 0.21370132325141727, 0.20454442344045234, 0.19839697542533044, 0.1931493383742927, 0.19425027175363213, 0.1156703726753854, 0.11335442552145011, 0.20264871573881624, 0.12234536638291953, 0.2922189932024609, 0.0056351738549099166, 0.0030201093038496525, 0.005510958994623624, 0.007154410503212977, 0.00988582204741192, 0.008859786951580986]'''
 
 # Unfortunately none of the training sets seem to produce 'good' clusters.
+
+# We now try the autoencoded (and oversampled) training set . It has shape (32710, 9)
+
+#y5_true = np.array(df5.iloc[:,-1]) # y credit card default
+#x5_train = np.array(df5.iloc[:,:-1]) # select all rows and all columns from the start up to the last
+#y5_pred = k_means(x5_train.tolist(), [33657, 267397], 9, 100, y5_true)
+#print(y5_pred)
+
+# After trying lots of different values of k, k-means still was not separating the data well. 
+# So, we tried picking out which features we thought were well correlated with people defaulting
+# We use SMOTE training set 
+
+y2_true = np.array(df2.iloc[:,-1]) # y credit card default
+x2Train = np.array(df2.iloc[:,:-1]) # select features we want to use
+y2Pred = k_means(x2Train.tolist(), [33657, 267397], 2, 10, y2_true)
+#print(y2Pred)
+
+
 
 
 
