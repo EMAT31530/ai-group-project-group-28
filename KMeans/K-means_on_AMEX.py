@@ -133,8 +133,7 @@ allData = np.array(df.iloc[:,:36])
 #y_vals = np.array(df.iloc[:,-1])
 
 # For features 9,10 (credit score and previous defaults)
-# For now we also have to incude net yearly income to count the 0s and 1s for each cluster- I should find a better way of doing this
-#x_vals = np.array(df.iloc[:,[2,9,10]])
+#x_vals = np.array(df.iloc[:,[9,10]])
 y_vals = np.array(df.iloc[:,-1])
 # First centroid has  22258 1s and  11 zeros [0.00157757, 0.16860725, 0.49369078]
 # Second centroid has  7014 1s and  29279 zeros [0.00121867, 0.61232727, 0.        ]
@@ -144,12 +143,12 @@ y_vals = np.array(df.iloc[:,-1])
 
 #Now lets try just the two features 9,10:
 x1_vals = np.array(df.iloc[:,[9,10]])
-print(k_means_oversample(x1_vals.tolist(), y_vals, [33657, 267397], 2, 50, 'minority'))
-#First centroid has  22222 1s and  0 zeros
-#Second centroid has  7059 1s and  29281 zeros
-#Converged at iteration:  2
-#Centroids:  [array([0.00162923, 0.16877273, 0.49057241]), array([0.00122236, 0.61208158, 0.        ])] Point is assigned to centroid  [0.0012223578136249529, 0.6120815779700092, 0.0]
-# This suggests the first centoid contains points that mostly were defaulted (1) and the second centroid mostly contains points that were not defaulted (0)
+#print(k_means_oversample(x1_vals.tolist(), y_vals, [33657, 267397], 2, 50, 'minority'))
+#First centroid has  6960 1s and  29281 zeros
+#Second centroid has  22321 1s and  0 zeros
+#Converged at iteration:  8
+#Centroids:  [array([0.6127111, 0.       ]), array([0.16716538, 0.49162224])] Point is assigned to centroid  [0.16716537973119336, 0.4916222391469916]
+# This suggests the first centoid contains points that mostly were not defaulted (0) and the second centroid mostly contains points that were defaulted (1)
 
 # Note we require very few iterations for convergence (1-10 range)
 
@@ -157,7 +156,7 @@ print(k_means_oversample(x1_vals.tolist(), y_vals, [33657, 267397], 2, 50, 'mino
 # We need an array for the true yvals and an array for the predicted yvals to calculater this
 # So, we create a function which takes our centroids that we got from k_means and predicts which centroid each point in our validation set would be assigned to
 
-def k_means_val(centroids,x_val): # centroids must be [centroid2(predict not default), centroid1(predict default)]
+def k_means_val(centroids,x_val): # centroids must be [centroid(predict not default), centroid(predict default)]
     '''Returns our predicted y_vals'''
     y_pred = [] # our predicted y values for the validation set will be in the same order of the original xvals so we can compare our ypred and ytrue later
     for point in x_val:
@@ -174,14 +173,14 @@ def k_means_val(centroids,x_val): # centroids must be [centroid2(predict not def
         y_pred.append(closest_centroid_index)
     return(y_pred)
 
-centroids = [[0.00121867, 0.61232727, 0.        ], [0.00157757, 0.16860725, 0.49369078]]
+centroids = [[0.6127111, 0.       ], [0.16716538, 0.49162224]]
 
-x_val = np.array(val.iloc[:,[2,9,10]]) # xvals from the validation set
+x_val = np.array(val.iloc[:,[9,10]]) # xvals from the validation set
 y_true = np.array(val.iloc[:,-1]) # Validation set labels
 
 y_pred = k_means_val(centroids, x_val)
 
-#print(f1_score(y_true, y_pred, average = 'binary')) # 0.8650306748466258
+print(f1_score(y_true, y_pred, average = 'binary')) # 0.8650306748466258
 
 cf_matrix = confusion_matrix(y_true, y_pred)
 # [[6275    0]

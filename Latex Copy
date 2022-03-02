@@ -1,0 +1,265 @@
+# Incase latex gets deleted:
+'''\documentclass[10pt]{article}
+\usepackage{multicol}
+\usepackage{url}
+\usepackage{multicol}
+\usepackage{extsizes}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage{placeins}
+\usepackage{minted}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\setlength{\columnsep}{1cm}
+\usepackage{amsmath}
+
+
+\author{Overleaf}
+\date{February 2022}
+
+
+
+
+\title{Using Artificial Intelligence to Determine the Likelihood of Credit Default}
+\author {Mollie Valentine, Andrew Thomas,\\
+and Lara Warwick}
+
+
+\begin{document}
+\maketitle
+\begin{multicols}{2}
+
+\begin{abstract}
+Predicting customer likelihood of defaulting on credit card loans is a profitable business and of great interest to banks, and customers alike. This report will investigate and evaluate a range of unsupervised and supervised machine learning techniques applied to data sets relevant to credit default. In this report we will use data provided by AMEX  that includes customer demographics credit ratings and their default status, as well as a data set looking at credit card transactions provided by Tamkang University Taiwan in 2005. Many machine learning techniques currently exist to predict the likely default outcome given an input and we will be assessing multiple different machine learning methods in order to find the most accurate method for our data sets. We will also be adapting current methods, allowing them to deal better with imbalanced data sets through a range of different sampling techniques. The methodology used in this project can be applied to a range of areas for example fraud,.... areas where imbalanced data is common.  SHOULD BE 200-250 WORDS (this is 136)
+
+
+\end{abstract}
+
+\section{Introduction}
+
+Predicting customer likelihood of defaulting on loans is a billion dollar industry. In the UK alone in 3rd quarter of 2021 credit card lending was a staggering £52.38 billion \cite{ref1}. Additionally, the failure of individuals being able to pay off secured debt in 2008 due to bad credit ratings lead to the infamous financial crisis. Emerging from a global pandemic with the combination of historically low interest rates and debt at an all time high, lending the right amount to the right people is of crucial importance. Therefore it is essential that lending institutions have a robust risk prediction model in order to decide which customers are appropriate to lend to and on what terms. During this project we will be exploring consumer unsecured debt - particularly credit card debt, in order to determine whether future customers should receive credit based on a variety of factors.
+
+\section{Literature Review}
+While credit risk is a well researched area with nearly all lending providers having entire teams dedicated to improving the institutions risk assessment the algorithms and methods used are private to these institutions. However there are some publicly available studies on the topic. 
+
+
+\section{Methodology}
+In this study we will be using two imbalanced data sets. We first processed the data removing gaps and normalising where appropriate [ANDREW WRITE SOMETHING HERE]. Next we used a variety of data re-sampling methods, since the data sets we used were very imbalanced. Then we used K-means, KNN, Random Forrest and Gradient boosted decision trees to compare various machine learning models. We have proposed the following hypothesis in order to check the significance of our methods:
+\newline
+\textbf{Null hypothesis $(H_0)$}: There is no difference in performance between the machine learning techniques used
+\newline 
+\textbf{Alternative Hypothesis $(H_1)$} : There is a significant difference between the machine learning models used
+\newline
+\textbf{Null Hypothesis 2 $(H_0)$}: sampling methods did not affect the models performance
+\newline
+\textbf{Alternative Hypothesis 2 $(H_1)$}: using sampling methods significantly improved the models performance
+\subsection{Data sets}
+The first data set we selected is rather unique\cite{amexdata set} as it was originally issued by the American Express Company for a hackathon. The data set provides a list of customers, several attributes and whether or not they have defaulted on their credit card. They provided both a training and testing file, however the testing file did not contain any labels so for the purposes of our project, we can only use the training set. This data set was found to be very imbalanced with only 3697 of the total 45528 $(8.1\%)$ defaulting. The following subsection outlines the procedure that we undertook to clean the data of the training set. HERE ADD A BIT ABOUT SPLITTING INTO TRAINING, VALIDATION AND TEST SET.
+
+The Taiwan credit card data set was obtained from the UCI machine learning repository. It consists of 30000 observations made between April 2005 and September 2005. It contains various demographics (similar to the AMEX data set) but also repayment status, amount of bill status and amount of previous payment as well as the outcome (default payment Y/N) of which 6636 $(22\%)$ are defaults. 
+
+\subsection{Cleaning the Data}
+\subsubsection{Feature Suitability}
+This data set has 18 features, namely:
+\begin{multicols}{3}
+\begin{enumerate}
+    \item Customer ID
+    \item Name
+    \item Age
+    \item Gender
+    \item Car ownership
+    \item House ownership
+    \item Number of children
+    \item Yearly Income
+    \item Days Employed
+    \item Occupation Type
+    \item Total Family Members
+    \item Migrant Worker
+    \item Annual Debt Payments
+    \item Credit Limit
+    \item \% Credit Limit Used
+    \item Credit Score
+    \item Previous Defaults
+    \item Default Last 6 Months
+\end{enumerate}
+\end{multicols}
+We have to ensure that we only include features that could be relevant. As the Customer ID and Name are completely unique to each example in the set, we have removed both of these features.
+\subsubsection{Empty Values}
+Unfortunately, this data set was not complete and had some missing values. In order to maximise the number of machine learning techniques we could implement, we decided to fill in these values.
+\FloatBarrier
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{p{0.2\linewidth} | p{0.15\linewidth} | p{0.6\linewidth}}
+\hline
+Feature & No. Empty Values & Description of Change \\
+\hline
+Car Ownership & 547 & This was binary data that either took the value yes or no, and we decided to fill all the empty values with no. \\ \hline
+No. of Children & 774 & This feature only contained integers. We filled in all the empty values by taking the floor function of the mean. \\ \hline
+Migrant Worker & 87 & This feature was represented as either 0 or 1, so we decided to fill in the empty values with 0. \\ \hline
+Days Employed & 463 & By analysing this feature, we noticed that the data was heavily skewed so rather than using the mean, we filled in all the empty values using the median. \\\hline
+Annual Debt Payments & 95 & Again, the data was heavily skewed for this feature so we  decided to use the median. \\\hline
+Total Family Members & 83 & We again took the floor function of the mean as the data was roughly normally distributed. \\\hline
+Credit Score & 8 & As this distribution was skewed, we took the median of all the values.\\
+\hline
+\end{tabular}
+\end{table}
+\FloatBarrier
+In total there are  45,528 example in this set. Hence the number of empty values per feature never exceeds $1.7\%$
+
+
+
+\subsubsection{One-Hot Encoding}
+The features - \textbf{Gender, Car ownership, House ownership} and \textbf{Occupation type} all contained categorical data, so we needed to one-hot encode these values. 
+\newline
+\newline
+After completing this procedure, we then decided to remove the \textbf{Doesn't own car} and \textbf{Doesn't own house} columns as this information is duplicated in the opposite column. Keeping these columns would only increase the dimensions of our data.
+
+\subsubsection{Normalizing the Data}
+Looking through our data, we decided to normalise all the values in order to keep the same scale between all our features. This would prevent our model from being skewed as some columns (e.g Yearly Income) would be extremely high compared to our one-hot encoded columns.
+
+\subsection{Correlations between features}
+Analysing our data is one of the first essential steps we must take in order to implement an effective algorithm. We first began looking at the features of the data set most strongly correlated to defaulting on loans. We used some simple graphs to produce these results. Two features that separate the data set well were previous defaults and defaults in the last 6 months (reference figure here and label axis)
+[we can then calculate the Gini index of each of these features
+We can then implement a search algorithm separating on the es features]
+
+\subsection{Dealing with imbalanced data sets}
+
+ Both of the data sets we use have used in this study have large imbalances between the two classes (see this in Figure \ref{Features}). This imbalance can inevitably cause algorithms to get biased towards the majority values (in our case 'no default' values) and not perform well on the minority values (in our case 'default' values) \cite{ClassImbalance}. 
+
+\subsubsection{Random Re-sampling}
+Once we had an appropriate metric, we needed to modify each of the training algorithms that we use to take into account the highly imbalanced data. To do this we must reweigh our data points so that our 'defaults' class is set to a higher class weight and our 'no defaults' class is set to a reduced class weight.\newline
+
+A popular method we could use is random re-sampling, which is a method that is simple to implement and fast to execute \cite{RandomResampling}. This will be useful for our data set as it is quite large. Our two options with random re-sampling are to either over sample or under sample: 
+\begin{itemize}
+    \item Over Sampling: Randomly duplicates data points in the minority class ('default' values)
+    \item Under Sampling: Randomly discards data points in the majority class ('no default' values)
+\end{itemize}
+\newline \newline
+
+[We will adapt the functions we create later on in the next section [?] (kmeans and knn) to handle our particular data set. We will use the imblearn package \cite{Imblearn} to over sample our data and it is important to note that we only re- sample the training set and not the validation or test set. A common problem with over sampling is potentially over-fitting the minority class, so we must be aware of this when evaluating our models] REWORD AND TALK ABOUT WHY WE CHOSE OVER SAMPLING INSTEAD OF UNDER SAMPLING
+\subsubsection{Synthetic Minority oversampling technique SMOTE} 
+\subsubsection{Gradient boosting}
+
+\subsection{Assessing the methods}
+\subsubsection{Precision and Recall}
+When assessing our data there are two types of errors False Positives (FP) where we predict the customer will default so don't lend to the customer however the customer didn't default and False Negative (FN) where we predict the customer will not default on their loan and therefore lend to the customer however the customer defaults. 
+False Positives affect the profitability of the lender and False negatives increase the risk of the business, both will have costs associated which will depend on the size of the loan and current economic climate. When assessing a model a lender will adjust the emphasis on precision or recall, the F1 score assumes that we see precision and recall as equally important. 
+As we see later on in section \ref{Accuracy}, achieving a high accuracy with our data set is not too difficult for us to do and so we measure our algorithms value using a different metric. A great candidate is the F1 Score and its formula is stated below.
+\newline
+\newline
+$F1 Score = \frac{2*(precision*recall)}{precision+recall}$ , where \hspace{3mm}
+$Precision = \frac{TP}{TP+FP}$ \hspace{1mm} and \hspace{1mm}
+$Recall = \frac{TP}{TP+FN}$
+
+\subsubsection{ROC}
+
+
+\end{multicols}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.45]{prev_defaults.png}
+    \includegraphics[scale=0.45]{default_in_last_6months.png}
+    \caption{Label graph}
+    \label{Features}
+\end{figure}
+
+\begin{multicols}{2}
+
+\section{Experimentation}
+\subsection{ K-Nearest Neighbours [Amex data set]}
+\subsubsection{Algorithm}
+The first machine learning method that we decided to implement (from scratch) was K-Nearest Neighbours. We wrote two functions:
+
+\begin{itemize}
+    \item Nearest Neighbours - Returns a list of all the data points sorted by distance to the new value.
+    \item KNN -  Returns the most common label of the K nearest neighbours
+\end{itemize}
+
+We decided to separate the functions as we could use the output of 'Nearest Neighbours' for multiple values of K, and recalculating this for every iteration would be extremely inefficient.
+\end{multicols}
+\newpage
+
+\subsubsection{Accuracy} \label{Accuracy}
+
+\begin{figure}[h]
+    \hspace*{0.5cm}
+    \includegraphics[scale=0.45]{KNN.png}
+\end{figure}
+
+\begin{figure}[h]
+    \hspace*{0.5cm}
+    \includegraphics[scale=0.45]{K40.png}
+\end{figure}
+\begin{multicols}{2}
+We initially tested our algorithm on the validation set for all values of K up to 500.
+We can see that the performance of the algorithm peaks very quickly, so we observe the first few K values.
+\newline
+We can see that the accuracy of this model peaks at around K=8.
+\newline
+More precisely, we have an accuracy score of 0.9723239127251427 for K=8.
+
+\textcolor{red}{I need to add shit about true positives etc, maybe an f-score}
+\textcolor{red}{ALso need to do this on the test set for K=6,7,8,9}
+\textcolor{red}{If we used stratified validation and test sets, need to repeat as well. Also would be good to have some graphs here.}
+\end{multicols}
+\begin{multicols}{2}
+\subsubsection{Remarks}
+\begin{enumerate}
+    \item For our first attempt, this is remarkably accurate which implies that it is an excellent model.
+    \item It is \textbf{extremely} computationally expensive as we need to calculate the euclidean distance of high dimensional data for every single point in the training set per example.
+    \begin{itemize}
+        \item It takes roughly 1.52 seconds to calculate all the Euclidean distances per new point.
+    \end{itemize}
+    \item However, this would be suitable for banks as they only need to check one datapoint at a time.
+\end{enumerate}
+
+\subsection{K-Means}
+\subsubsection{Algorithm}
+K-means is an unsupervised clustering algorithm which we will adapt to handle our data set. An advantage of using this algorithm is once we have used it to determine our clusters, we don't need to keep running it every time we want to classify new data points, so it requires little computation.
+\newline
+
+We decided to write a function for K-means from scratch (but using a few modules to help us out\footnote[1]{math, pandas, numpy, random, imblearn, seaborn}). This then allowed us to observe exactly what was going on in the function (by printing out parts of certain stages) , which gave us a better understanding of the model. Although our algorithms may not be as efficient as the ones you can access from importing modules, we decided the advantage of being able to have a deeper understanding of the algorithm outweighed this limitation.  Our hyper-parameters are:
+\begin{itemize}
+    \item data - Input data which we use to train the algorithm
+    \item yvals - Our true labels which we only use to determine which centroid represents whether they default or not (not during the training process!)
+    \item newpoint - A new point that we have not seen before can be assigned to its cluster
+    \item k - Number of clusters
+    \item iterations - This was particularly useful to print out which iteration we converged at
+    \item samplingStrategy - In a separate K-means function we created we allowed the user to input which sampling strategy they could use
+\end{itemize}
+If we run out of space the above could be deleted
+
+\subsubsection{Training Set}
+Once we had our K-means working correctly, we used the training set to train the algorithm. We chose to start with k = 2 because we know that there are only two labels we are looking for (1- default and 0- no default). This process took a very short amount of time and converged on average after 5 iterations. The next step was to work out which cluster would best represent 1 or 0. In order to do this we looped through all the points in each centroid and stored their true labels in a variable. We were hoping one centroid would contain mostly 1s and the other would contain mostly 0s. Unfortunately this was not the case, in fact there was a very similar number of 1s and 0s in each cluster.  
+\newline
+We wanted to check that this wasn't an error on our behalf and decided to import a module to perform K-means for us on the same training set. The results were very similar to what we had found with out K-means function so this suggested we needed to investigate further. Next we tried varying k as even though we only have two labels, the clusters could separate the data better with higher values of k (e.g if k = 5 then 3 clusters could represent 0 (no default) and 2 could represent 1 (default). Unfortunately, we still saw no further improvement from varying our k value.
+\newline
+After analysing the Amex data set, there were two features that stood out to us which we thought would be strongly related to whether someone was defaulted on a loan or not. These were 'credit score' and 'previous defaults'. We wanted to increase the performance of our algorithm to the best we could, so we also used the over sampling strategy 'minority' to deal with the imbalance of the data. Fortunately, our F1 score had increased to 0.8650306748466258. 
+
+
+\subsubsection{Evaluating our K-means}
+\begin{figure}[h]
+    \hspace*{0.5cm}
+    \includegraphics[scale=0.45]{Confusion_Matrix.png}
+\end{figure}
+(Validation Set)
+
+
+Additional modules used for evaluation \footnote[2]{matplotlib.pyplot, f1score and confusion matrix(from sklearn.metrics)}
+Talk about iteration parameter allowing us to see it converges after a small amount of iterations and that research has shown that repeating k means and taking our best results is the best option \cite{PatternRecognition}
+\subsection{Decision Tree}
+\subsubsection{AMEX data set}
+\subsubsection{Taiwan data set}
+
+\section{Discussion}
+\section{Conclusion}
+\section{Future Work}
+
+\bibliographystyle{plain}
+\bibliography{sample}
+\end{multicols}
+
+\end{document}
+
+'''
