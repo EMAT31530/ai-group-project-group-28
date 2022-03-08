@@ -2,6 +2,7 @@
 # TEST SET
 
 # !!!!!!!!!! We decided which cluster is what by LOOKING AT THE RATIO !!!!!!!!!!!!!
+# Could also create a loss graph for different k and plot features for 2 dimensions?
 
 # We choose weighted : Calculate metrics for each label, and find their average weighted
 #  by support (the number of true instances for each label). This alters ‘macro’ 
@@ -9,6 +10,10 @@
 # Macro is : Calculate metrics for each label, and find their unweighted mean
 
 # We saw no improvement when increasing k, so have decided to stick with k=2 as the lower the k, the less computational
+# The reason for our best results being RUS and CNN with just two features and not using all features could be to do with the 
+# fact that half of our data is binary. Research has shown that it is 'unlikely that binary data can be clustered satisfactorily'
+# So in the future we would try kmeans on just the non binary data and maybe use higher ks and try see if there could be multiple 
+# clusters that represent 1 for example. Maybe use elbow method. https://www.ibm.com/support/pages/clustering-binary-data-k-means-should-be-avoided
 
 # We have tuned our hyperparamter k on the validation set 
 # We have also concluded, through a numerous amount of testing, that the best two
@@ -20,7 +25,7 @@
 # Over (ROS) : (0.7540415457393651, 0.5491111111111111, 0.5833070863153699) WORSE
 # Under (RUS) : (0.7906874385365058, 0.7931111111111111, 0.7918514638311337) IMPROVED
 # SMOTE: (0.7532528131794377, 0.5382222222222223, 0.5719367548321657) WORSE
-# CNN : (0.7914104140146693, 0.7928888888888889, 0.7921321738516502) IMPROVED
+# CNN : (0.7914104140146693, 0.7928888888888889, 0.7921321738516502) IMPROVED - BEST
 
 # All features (Test Set) MOST ARE THE SAME??
 
