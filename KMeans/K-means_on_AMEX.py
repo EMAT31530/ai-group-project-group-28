@@ -204,3 +204,14 @@ ax.yaxis.set_ticklabels(['False','True'])
 
 # Import a function by using: from test import * 
 # Where test.py is the file
+
+'''After analysing the Amex data set, there were two features that
+ stood out to us which we thought would be strongly related to whether
+  someone was defaulted on a loan or not. These were 'credit score' and
+   'previous defaults'. So, as a type of manual dimensionality reduction,
+    we reduced the training set to just these two features. We wanted to 
+    increase the performance of our algorithm to the best we could, so we
+     also used the over sampling strategy 'minority' to deal with the imbalance
+      of the data. Fortunately, our F1 score had increased to 0.8650306748466258.
+       We couldn't see how we could use this method for the Taiwan data set as we
+     could not see any features that stood out to us like in the Amex data set.'''

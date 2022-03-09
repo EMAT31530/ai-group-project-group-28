@@ -1,0 +1,59 @@
+from K_means_on_Taiwan import *
+from sklearn.cluster import KMeans
+from matplotlib.pyplot import figure
+ 
+
+df7 = pd.read_csv('ActualActualData/training_cnn.csv')
+y7_true = np.array(df7.iloc[:,-1]) # y credit card default
+x7_train = np.array(df7.iloc[:,[0,5]]) # select just indices 0,5
+#y7_pred = k_means(x7_train.tolist(), [33657, 267397], 3, 50, y7_true)
+#print(y7_pred)
+
+#Before kmeans
+allData = np.array(df7.iloc[:,[0,5,23]])
+label0 = []
+label1 = []
+for i in allData:
+    if i[2] == 0:
+        label0.append(i)
+    if i[2] == 1:
+        label1.append(i)
+
+
+label0x = []
+for i in range(len(label0)):
+    label0x.append(label0[i][0]) # First feature
+label0y = []
+for i in range(len(label0)):
+    label0y.append(label0[i][1]) # Second feature
+label1x = []
+for i in range(len(label1)):
+    label1x.append(label1[i][0]) # First feature
+label1y = []
+for i in range(len(label1)):
+    label1y.append(label1[i][1]) # Second feature
+
+
+'''plt.scatter(label0x, label0y, color = 'black', label = 'Predict no default', alpha = 0.7)
+plt.scatter(label1x, label1y, color = 'c',  label = 'Predict default', alpha = 0.05)
+plt.title('Training CNN set before K-means')
+plt.xlabel('Limit Balance')
+plt.ylabel('September Status')
+plt.legend()
+plt.show()'''
+
+#After kmeans
+# Re - label below and ss
+# Plotting 2 features
+kmeans = KMeans(n_clusters= 2)
+label = kmeans.fit_predict(x7_train)
+filtered_label0 = x7_train[label == 0]
+filtered_label1 = x7_train[label == 1]
+plt.scatter(filtered_label0[:,0] , filtered_label0[:,1], color = 'black', label = 'Predict no default')
+plt.scatter(filtered_label1[:,0] , filtered_label1[:,1], color = 'c', label = 'Predict default')
+plt.title('K-means applied to training CNN set')
+plt.xlabel('Limit Balance')
+plt.ylabel('September Status')
+plt.legend()
+#plt.show()
+plt.savefig('after_kmeans.png')

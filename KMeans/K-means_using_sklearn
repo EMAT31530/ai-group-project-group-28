@@ -1,3 +1,5 @@
+# I have used this file to check that what our kmeans function is doing is correct.
+
 from sklearn.cluster import KMeans
 import pandas as pd
 import numpy as np
@@ -6,15 +8,24 @@ import math
 from random import randint
 import random
 from sklearn.metrics import f1_score
+from sklearn.metrics import precision_recall_fscore_support
 
-df5 = pd.read_csv('ActualActualData/training_cnn_autoencoded_16.csv')
+df7 = pd.read_csv('ActualActualData/training_cnn.csv')
+test_set = pd.read_csv('ActualActualData/test_set.csv') 
+test_true_y1 = np.array(test_set.iloc[:,-1])
+test_x1 = np.array(test_set.iloc[:,[0,5]])
 
-kmeans = KMeans(7,random_state = 0).fit(df5.iloc[:,:-1])
+kmeans = KMeans(3,random_state = 0).fit(df7.iloc[:,[0,5]])
+test_pred_y = (kmeans.predict(test_x1))
+print(precision_recall_fscore_support(test_true_y1, test_pred_y, average ='weighted'))
+
+
+
 centroid_indexes = kmeans.labels_ # Predicted centroid indexes
 
-y_true = np.array(df5.iloc[:,-1]) # y credit card default
+y_true = np.array(df7.iloc[:,-1]) # y credit card default
 
-no_rows, no_columns = df5.shape
+no_rows, no_columns = df7.shape
 
 centroid0_labels = [] # True labels of centroid (index 0)
 centroid1_labels = [] # True labels of centroid (index 1)
@@ -31,39 +42,65 @@ for i in range(no_rows):
     if centroid_indexes[i] == 1:
         centroid1_labels.append(y_true[i])
     if centroid_indexes[i] == 2:
-        centroid2_labels.append(y_true[i]) 
-    if centroid_indexes[i] == 3:
-        centroid3_labels.append(y_true[i]) 
-    if centroid_indexes[i] == 4:
-        centroid4_labels.append(y_true[i]) 
-    if centroid_indexes[i] == 5:
-        centroid5_labels.append(y_true[i]) 
-    if centroid_indexes[i] == 6:
-        centroid6_labels.append(y_true[i]) 
+        centroid2_labels.append(y_true[i])
+
 
 centroid0_labels = np.array(centroid0_labels).astype(int) # We convert the floats to integers so we can count how many 1s and 0s we have
 centroid1_labels = np.array(centroid1_labels).astype(int)
 centroid2_labels = np.array(centroid2_labels).astype(int)
-centroid3_labels = np.array(centroid3_labels).astype(int)
-centroid4_labels = np.array(centroid4_labels).astype(int)
-centroid5_labels = np.array(centroid5_labels).astype(int)
-centroid6_labels = np.array(centroid6_labels).astype(int)
-
-print('First centroid has ',np.count_nonzero(centroid0_labels == 1.0) ,'1s and ', np.count_nonzero(centroid0_labels == 0.0),'zeros')
-print('Second centroid has ',np.count_nonzero(centroid1_labels == 1.0) ,'1s and ', np.count_nonzero(centroid1_labels == 0.0),'zeros')
-print('3rd centroid has ',np.count_nonzero(centroid2_labels == 1.0) ,'1s and ', np.count_nonzero(centroid2_labels == 0.0),'zeros')
-print('4th centroid has ',np.count_nonzero(centroid3_labels == 1.0) ,'1s and ', np.count_nonzero(centroid3_labels == 0.0),'zeros')
-print('5th centroid has ',np.count_nonzero(centroid4_labels == 1.0) ,'1s and ', np.count_nonzero(centroid4_labels == 0.0),'zeros')
-print('6th centroid has ',np.count_nonzero(centroid5_labels == 1.0) ,'1s and ', np.count_nonzero(centroid5_labels == 0.0),'zeros')
-print('7th centroid has ',np.count_nonzero(centroid6_labels == 1.0) ,'1s and ', np.count_nonzero(centroid6_labels == 0.0),'zeros')
 
 
 
-# We can see that:
+#print('First centroid has ',np.count_nonzero(centroid0_labels == 1.0) ,'1s and ', np.count_nonzero(centroid0_labels == 0.0),'zeros')
+#print('Second centroid has ',np.count_nonzero(centroid1_labels == 1.0) ,'1s and ', np.count_nonzero(centroid1_labels == 0.0),'zeros')
+#print('3rd centroid has ',np.count_nonzero(centroid2_labels == 1.0) ,'1s and ', np.count_nonzero(centroid2_labels == 0.0),'zeros')
 
+
+def k_means_3(centroids,x_val): # centroids must be [centroid(predict not default 0), centroid(predict default 1), centroid(predict not default 0)]
+    '''Returns our predicted y_vals
+    for k = 3'''
+    y_pred = [] # our predicted y values for the validation set will be in the same order of the original xvals so we can compare our ypred and ytrue later
+    for point in x_val:
+        dist_from_centroids = [] # Includes indexs
+        for index, centroid in enumerate(centroids):
+            distance = 0
+            for i in range(len(point)):
+                distance = distance + math.pow((point[i] - centroid[i]), 2)
+            distance = math.sqrt(distance)
+            dist_from_centroids.append((distance, index))
+            sorted_dist_from_centroids = sorted(dist_from_centroids)
+            closest_centroid_index = sorted_dist_from_centroids[0][1]
+            # We want our index of the first distance in the list^
+        y_pred.append(closest_centroid_index)
+    return(y_pred)
 
 # Lets see how this does on the validation set
 val_set = pd.read_csv('ActualActualData/validation_set.csv')
+x_validation = np.array(val_set.iloc[:,[0,5]])
+y_validation_true = np.array(val_set.iloc[:,-1])
+
+#print(kmeans.cluster_centers_)
+
+# This suggests centroid1 represents 0, centroid2 represents 0, centroid3 represents 1
+'''First centroid has  855 1s and  1699 zeros
+Second centroid has  1578 1s and  2614 zeros
+3rd centroid has  2212 1s and  1026 zeros
+[[0.30673612 0.13543461]
+[0.07658166 0.16741412]
+[0.08827497 0.37078443]]'''
+
+'''y_val_pred = print(k_means_3([[0.30673612, 0.13543461], [0.08827497, 0.37078443],[0.07658166, 0.16741412]], x_validation))
+# These labels represent : 0- no default, 1- default, 2- no default
+for i in y_val_pred:
+    if i == 2:
+        continue'''
+
+
+
+
+
+
+
 
 
 

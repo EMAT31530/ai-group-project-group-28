@@ -1,0 +1,17 @@
+# Data imbalance Taiwan graph
+import seaborn as sns
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+
+df = pd.read_csv('ActualActualData/training_set.csv') # No sample
+x = np.array(df.iloc[:,:-1]) # select all rows and all columns from the start up to the last
+y = np.array(df.iloc[:,-1]) # y credit card default
+
+sns.set_style("dark")
+sns.countplot(x=y)
+plt.title('Bar chart showing the imbalance of the data')
+plt.xlabel('No Default (0) and Default (1)')
+#plt.show()
+plt.savefig('ImbalanceTaiwan.png')
