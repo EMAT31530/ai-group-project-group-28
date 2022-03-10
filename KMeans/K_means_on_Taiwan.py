@@ -32,10 +32,22 @@ df4 = pd.read_csv('ActualActualData/training_ROS.csv')
 df5 = pd.read_csv('ActualActualData/training_cnn_autoencoded_16.csv')
 df6 = pd.read_csv('ActualActualData/training_cnn_autoencoded_4.csv')
 df7 = pd.read_csv('ActualActualData/training_cnn.csv')
+# Autoencoded ones
+df8 = pd.read_csv('CleaningTaiwanData/training_set_autoencoded.csv')
+df9 = pd.read_csv('CleaningTaiwanData/training_ROS_autoencoded.csv')
+df10 = pd.read_csv('CleaningTaiwanData/training_RUS_autoencoded.csv')
+df11 = pd.read_csv('CleaningTaiwanData/training_SMOTE_autoencoded.csv')
+df12 = pd.read_csv('CleaningTaiwanData/training_cnn_autoencoded.csv')
 
 # Validation Set (Autoencoded)
 val_auto = pd.read_csv('ActualActualData/validation_autoencoded_16.csv')
 val_set = pd.read_csv('ActualActualData/validation_set.csv')
+
+# Test Sets
+test_set = pd.read_csv('ActualActualData/test_set.csv')
+test_auto = pd.read_csv('CleaningTaiwanData/test_set_autoencoded.csv')
+test_auto_x = np.array(test_auto.iloc[:,:-1])
+test_auto_y = np.array(test_auto.iloc[:,-1])
 
 def cluster_assign(data, centroids):
     '''For each point calculate the distance it is from all the centroids
@@ -183,7 +195,22 @@ def k_means(data, newpoint, k, iterations, y_true):
             #print(assigned_points[:10])
             old_centroids = new_centroids.copy()
 
-
+def k_means_val(centroids,x_val): # centroids must be [centroid(predict not default 0), centroid(predict default 1)]
+    '''Returns our predicted y_vals'''
+    y_pred = [] # our predicted y values for the validation set will be in the same order of the original xvals so we can compare our ypred and ytrue later
+    for point in x_val:
+        dist_from_centroids = [] # Includes indexs
+        for index, centroid in enumerate(centroids):
+            distance = 0
+            for i in range(len(point)):
+                distance = distance + math.pow((point[i] - centroid[i]), 2)
+            distance = math.sqrt(distance)
+            dist_from_centroids.append((distance, index))
+            sorted_dist_from_centroids = sorted(dist_from_centroids)
+            closest_centroid_index = sorted_dist_from_centroids[0][1]
+            # We want our index of the first distance in the list^
+        y_pred.append(closest_centroid_index)
+    return(y_pred)
 
 # The original training set has a shape of (21000, 24)
 
@@ -387,22 +414,6 @@ true_val = np.array(val_auto.iloc[:,-1]) # Val yvals
 x_val = np.array(val_auto.iloc[:,:-1]) 
 
 
-def k_means_val(centroids,x_val): # centroids must be [centroid(predict not default 0), centroid(predict default 1)]
-    '''Returns our predicted y_vals'''
-    y_pred = [] # our predicted y values for the validation set will be in the same order of the original xvals so we can compare our ypred and ytrue later
-    for point in x_val:
-        dist_from_centroids = [] # Includes indexs
-        for index, centroid in enumerate(centroids):
-            distance = 0
-            for i in range(len(point)):
-                distance = distance + math.pow((point[i] - centroid[i]), 2)
-            distance = math.sqrt(distance)
-            dist_from_centroids.append((distance, index))
-            sorted_dist_from_centroids = sorted(dist_from_centroids)
-            closest_centroid_index = sorted_dist_from_centroids[0][1]
-            # We want our index of the first distance in the list^
-        y_pred.append(closest_centroid_index)
-    return(y_pred)
 
 pred_val = k_means_val([[0.4992042 , 0.73063958, 0.        , 0.38571217, 0.40618006,
        0.        , 0.93935585, 0.51656305, 0.46160858, 0.29093075,
@@ -601,6 +612,101 @@ test_x2 = np.array(test_set.iloc[:,[0,5]])
 #Centroids = [[0.16186334, 0.15368547], [0.09307148, 0.37120658]]
 #pred_test2 = k_means_val(Centroids, test_x2)
 #print(precision_recall_fscore_support(test_true_y2, pred_test2, average ='weighted'))
+
+
+
+# Original auto
+# To test a training set uncomment the centroids for that particular set
+
+'''y8_true = np.array(df8.iloc[:,-1]) # y credit card default
+x8_train = np.array(df8.iloc[:,:-1]) # select all rows and all columns from the start up to the last
+y8_pred = k_means(x8_train.tolist(), [33657, 267397], 2, 50, y8_true)'''
+#print(y8_pred)
+# This implies the first centroid is 0 and the second is 1
+'''First centroid has  2594 1s and  9953 zeros
+Second centroid has  2051 1s and  6402 zeros'''
+
+'''Centroids = [[0.64898099, 0.38038286, 0.        , 0.45770515, 0.32977172,
+       0.36539945, 0.20508356, 0.35877423, 0.41592941, 0.24696831,
+       0.55323001, 0.48521841, 0.45799257, 0.        , 0.32627079,
+       0.        ], [0.43727863, 0.39919581, 0.        , 0.65948367, 0.36678826,
+       0.45040017, 0.2264349 , 0.72906034, 0.38268702, 0.45395368,
+       0.634171  , 0.52915824, 0.87813643, 0.        , 0.38493171,
+       0.        ]]'''
+
+# Ros auto
+
+'''y9_true = np.array(df9.iloc[:,-1]) # y credit card default
+x9_train = np.array(df9.iloc[:,:-1]) # select all rows and all columns from the start up to the last
+y9_pred = k_means(x9_train.tolist(), [33657, 267397], 2, 50, y9_true)'''
+#print(y9_pred)
+# This suggests the first centroid is 1 and the second is 0
+'''First centroid has  7214 1s and  6391 zeros
+Second centroid has  9141 1s and  9964 zeros'''
+'''Centroids = [[0.67499223, 0.38069399, 0.        , 0.47333898, 0.33023352,
+       0.36902465, 0.20849262, 0.37135663, 0.42984553, 0.2561269 ,
+       0.54653802, 0.48437942, 0.4645997 , 0.        , 0.33009506,
+       0.        ], [0.46909182, 0.39804511, 0.        , 0.67658545, 0.36637032,
+       0.45441516, 0.23180573, 0.74632915, 0.39785374, 0.4653033 ,
+       0.62971663, 0.52651525, 0.88484365, 0.        , 0.38632833,
+       0.        ]]'''
+
+# Rus auto
+
+'''y10_true = np.array(df10.iloc[:,-1]) # y credit card default
+x10_train = np.array(df10.iloc[:,:-1]) # select all rows and all columns from the start up to the last
+y10_pred = k_means(x10_train.tolist(), [33657, 267397], 2, 50, y10_true)'''
+#print(y10_pred)
+# This suggests the first centroid is 0 and the second is 1
+'''First centroid has  2596 1s and  2800 zeros
+Second centroid has  2049 1s and  1845 zeros'''
+'''Centroids = [[0.67641218, 0.38237466, 0.        , 0.47466281, 0.32975114,
+       0.36983747, 0.20907058, 0.37187046, 0.42919886, 0.2575661 ,
+       0.54818027, 0.48545341, 0.46485988, 0.        , 0.33024932,
+       0.        ], [0.46594194, 0.39727284, 0.        , 0.67556473, 0.36647498,
+       0.45473247, 0.23148155, 0.7464405 , 0.39883834, 0.46681201,
+       0.62892547, 0.52695979, 0.8830962 , 0.        , 0.38610855,
+       0.        ]]'''
+
+# smote auto
+
+'''y11_true = np.array(df11.iloc[:,-1]) # y credit card default
+x11_train = np.array(df11.iloc[:,:-1]) # select all rows and all columns from the start up to the last
+y11_pred = k_means(x11_train.tolist(), [33657, 267397], 2, 50, y11_true)
+print(y11_pred)'''
+# This suggests the first centroid is 0 and the second is 1
+'''First centroid has  9085 1s and  9971 zeros
+Second centroid has  7270 1s and  6384 zeros'''
+'''Centroids = [[0.67498437, 0.38130332, 0.        , 0.47148895, 0.33032495,
+       0.36869415, 0.20805344, 0.37131065, 0.42876413, 0.25592103,
+       0.54508014, 0.4842586 , 0.46602161, 0.        , 0.32914561,
+       0.        ], [0.46557978, 0.39710668, 0.        , 0.67439709, 0.36765755,
+       0.45409207, 0.23037926, 0.74515539, 0.39844416, 0.46548133,
+       0.6260267 , 0.52832697, 0.88370164, 0.        , 0.38657349,
+       0.        ]]'''
+
+# cnn auto
+
+# smote auto
+
+'''y12_true = np.array(df12.iloc[:,-1]) # y credit card default
+x12_train = np.array(df12.iloc[:,:-1]) # select all rows and all columns from the start up to the last
+y12_pred = k_means(x12_train.tolist(), [33657, 267397], 2, 50, y12_true)
+print(y12_pred)'''
+# This suggests the first centroid is 0 and the second is 1
+'''First centroid has  2595 1s and  3117 zeros
+Second centroid has  2050 1s and  2192 zeros'''
+'''Centroids = [[0.67853925, 0.38310132, 0.        , 0.47548178, 0.32580269,
+       0.37008564, 0.20726182, 0.37319161, 0.42993787, 0.25600868,
+       0.53926955, 0.48427695, 0.46782941, 0.        , 0.33009647,
+       0.        ], [0.47106229, 0.3981701 , 0.        , 0.67462665, 0.36402922,
+       0.4540771 , 0.23111428, 0.74702825, 0.40018131, 0.46452254,
+       0.62588629, 0.52723241, 0.88815953, 0.        , 0.38691174,
+       0.        ]]'''
+
+
+pred_test = k_means_val(Centroids, test_auto_x)
+print(precision_recall_fscore_support(test_auto_y, pred_test, average ='weighted'))
 
 
 
